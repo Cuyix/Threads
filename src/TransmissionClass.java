@@ -5,30 +5,16 @@ import java.io.*;
 
 public class TransmissionClass implements Transmission {
     @Override
-    public DataSet receiver() {
+    public DataSet receiver(){
         float[] x = {0f};
-        DataSet dO = new DataSet(0, x);
+        DataSet dO = new DataSet(0,x);
         try {
             short port = 8080;
             ServerSocket ser = new ServerSocket(port);
-            Socket soc = ser.accept();
-            InputStream is = soc.getInputStream();
-            DataInputStream dis = new DataInputStream(is);
-            try {
-                dO.setTime(dis.readLong());
-                int dataCount = dis.readInt();
-                float[] vals = new float[dataCount];
-                for (int i = 0; i < dataCount; i++) {
-                    vals[i] = dis.readFloat();
-                }
-                dO.setValues(vals);
-            } catch (IOException ex) {
-                System.err.println("Failed to read from source.");
-                System.exit(0);
-            }
-            soc.close();
-        } catch (IOException ex) {
-            System.err.println("Failed to receive.");
+            ServerThread sT = new ServerThread(ser.accept());
+            dO = sT.runThread();
+        } catch(IOException ex){
+            System.err.println("Failed to run server");
         }
         DataMachine dm = new DataMachine();
         dm.writeDataSet(dO, "Received");
@@ -38,9 +24,9 @@ public class TransmissionClass implements Transmission {
     @Override
     public void transmitter(DataSet data, String address, short port) {
         try {
-            Socket socket = new Socket();
-            SocketAddress sr = new InetSocketAddress(address, port);
-            socket.connect(sr, 10000);
+            Socket socket = new Socket(address, port);
+            //SocketAddress sr = new InetSocketAddress(address, port);
+            //socket.connect(sr, 10000);
             OutputStream os = socket.getOutputStream();
             DataOutputStream dos = new DataOutputStream(os);
             long time = data.getTime();

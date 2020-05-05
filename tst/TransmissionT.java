@@ -12,8 +12,8 @@ public class TransmissionT {
     short port = 8080;
     @Test
        public void testTransmission(){
-        transmitter.transmitter(data, address, port);
         DataSet received = transmitter.receiver();
+        transmitter.transmitter(data, address, port);
         long expectedTime = time;
         long actualTime = received.getTime();
         Assertions.assertEquals(expectedTime, actualTime);
